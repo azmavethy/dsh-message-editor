@@ -17,15 +17,22 @@ rewriting or deleting the durable transcript.
 
 | Action | Where | What happens |
 | --- | --- | --- |
-| **↩ 撤回** (recall) | hover any assistant reply, or the row under any user message | The message and everything after it are removed from the model context going forward; a muted notice row marks where the rewind happened. |
-| **✎ 编辑重发** (edit & re-send) | row under any user message | The old message and its reply are rewound, the edited text is sent, and the agent answers the new version. |
-| **↻ 重新生成** (regenerate) | hover any assistant reply | The reply (and everything after it) is rewound, then the original prompt is re-sent so the agent answers again. |
+| **↩ 撤回** (recall) | hover any assistant reply, or the row under any user message | The message and everything after it are removed from the model context **and hidden from the conversation view**; the recalled text is echoed into the composer so you can immediately re-ask or re-edit. |
+| **✎ 编辑重发** (edit & re-send) | row under any user message | The old message and its reply are rewound and hidden. By default the conversation **starts fresh** (all earlier messages are hidden too and excluded from context); the edited text is sent and the agent answers. An optional "original input" comparison block can be shown (see Settings). |
+| **↻ 重新生成** (regenerate) | hover any assistant reply | The reply (and everything after it) is rewound and hidden, then the original prompt is re-sent so the agent answers again. |
 
-Every recalled/edited message is **marked in place** with a `已撤回` / `已编辑`
-badge right under the old bubble, so it is always obvious that the old content
-was undone. The durable transcript is never destroyed: the original messages
-stay visible as an audit trail (exactly how compaction checkpoints behave),
-while the agent's future context only sees the rewound history.
+Because DeepSeek Harness stores conversations as an append-only log, the old
+events are never deleted — but they are **synchronized out of both the model
+context and the visible conversation**, so the view always reflects what the
+agent actually sees. A small notice row marks each rewind point.
+
+### Settings → General
+
+- **编辑后显示原提问对照** (default on): after editing, show the original
+  message text for comparison.
+- **编辑后从新对话开始** (default on): after editing, hide earlier messages
+  too so the conversation looks like a fresh start (the whole surface is
+  rewound before re-sending).
 
 ## How it works
 
@@ -39,10 +46,14 @@ while the agent's future context only sees the rewound history.
    rewound `session.deriveMessages()`.
 3. **Client** (`lib/client.js`) registers:
    - a `user-actions` conversation node under every user message
-     (编辑 / 撤回 row with an inline editor),
-   - the `recall-marker` node renderer (the centered notice row),
+     (编辑 / 撤回 row with an inline editor); recall echoes the text into the
+     composer,
+   - the `recall-marker` node renderer: a notice row that injects CSS hiding
+     every shadowed message row from the flow (view and model context stay in
+     sync), plus the optional original-input comparison block,
    - the `message-editor` entry in the `conversation.chat.assistant-actions`
-     strip (撤回 / 重新生成).
+     strip (撤回 / 重新生成),
+   - two preference toggles under Settings → General.
 
 ## Installation
 
