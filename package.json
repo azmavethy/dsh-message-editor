@@ -28,6 +28,7 @@
     "lib/**/*.d.ts",
     "README.md",
     "README.zh.md",
+    "HUMANS.txt",
     "LICENSE"
   ],
   "keywords": [
@@ -41,6 +42,7 @@
     "resend",
     "regenerate"
   ],
+  "author": "OfferKuai <contact@offerkuai.com> (https://www.offerkuai.com)",
   "license": "MIT",
   "dsh": {
     "client": {
@@ -63,6 +65,10 @@
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/your-name/dsh-message-editor.git"
-  }
+    "url": "git+https://github.com/azmavethy/dsh-message-editor.git"
+  },
+  "bugs": {
+    "url": "https://github.com/azmavethy/dsh-message-editor/issues"
+  },
+  "homepage": "https://github.com/azmavethy/dsh-message-editor#readme"
 }

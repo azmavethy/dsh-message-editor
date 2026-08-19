@@ -1,0 +1,18 @@
+/* HUMANS.TXT */
+/* dsh-message-editor — an open-source plugin for DeepSeek Harness */
+
+/* Team */
+OfferKuai — AI Job Application Assistant
+Founder: Yaming
+Contact: contact@offerkuai.com
+Website: https://www.offerkuai.com
+
+/* Mission */
+Users need results, not repeated conversations.
+
+/* Acknowledgements */
+Thanks to all test users for their feedback and suggestions
+Thanks to the open-source community for their technical contributions
+
+/* License */
+MIT — see LICENSE

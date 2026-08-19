@@ -87,6 +87,12 @@ lib/dynamic-host.js    # 动态 Host 半区（自包含）
 lib/dynamic-client.js  # 动态 Client 半区（自包含）
 ```
 
+## 团队
+
+由 [OfferKuai](https://www.offerkuai.com) 团队开发——一款 AI 求职助手，使命是
+「用户要的是结果，而不是反复的对话」。本插件以开源形式发布，回馈 DeepSeek
+Harness 社区。
+
 ## License
 
 MIT

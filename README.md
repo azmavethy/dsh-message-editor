@@ -106,6 +106,12 @@ lib/dynamic-host.js    # dynamic Host half (self-contained)
 lib/dynamic-client.js  # dynamic Client half (self-contained)
 ```
 
+## Team
+
+Built by the [OfferKuai](https://www.offerkuai.com) team — an AI job application
+assistant on a mission that "users need results, not repeated conversations".
+This plugin is released as open source for the DeepSeek Harness community.
+
 ## License
 
 MIT
