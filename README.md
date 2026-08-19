@@ -17,7 +17,7 @@ rewriting or deleting the durable transcript.
 
 | Action | Where | What happens |
 | --- | --- | --- |
-| **↩ 撤回** (recall) | hover any assistant reply, or the row under any user message | Removes **exactly that one message** (its action row disappears with it) from both the model context and the conversation view; the text is echoed into the composer so you can re-ask or re-edit immediately. A small transient notice marks the rewind and disappears once you keep typing. |
+| **↩ 撤回** (recall) | hover any assistant reply, or the row under any user message | Removes the **whole exchange round** (the input AND the agent's output, including tool rows) from both the model context and the conversation view; the input text is echoed into the composer so you can re-ask or re-edit immediately. A small transient notice marks the rewind and disappears once you keep typing. |
 | **✎ 编辑重发** (edit & re-send) | row under any user message | The old message and its reply are rewound and hidden. By default the conversation **starts fresh** (all earlier messages are hidden too and excluded from context); the edited text is sent and the agent answers. A collapsed **"original input"** reference sits right under the new message — click to expand, configurable off. |
 | **↻ 重新生成** (regenerate) | hover any assistant reply | The reply (and everything after it) is rewound and hidden, then the original prompt is re-sent so the agent answers again. |
 
@@ -29,7 +29,8 @@ agent actually sees.
 ### Settings → General
 
 - **编辑后显示原提问对照** (default on): a collapsed "original input" reference
-  under the re-sent message (reference only — never sent to the model).
+  under the re-sent message showing the **most recent** replaced text
+  (reference only — never sent to the model).
 - **编辑后从新对话开始** (default on): after editing, hide earlier messages too
   so the conversation looks like a fresh start (the whole surface is rewound
   before re-sending).
