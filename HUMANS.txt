@@ -3,7 +3,7 @@
 
 /* Team */
 OfferKuai — AI Job Application Assistant
-Founder: Yaming
+Founder: Zhaofeng (Yaming)
 Contact: contact@offerkuai.com
 Website: https://www.offerkuai.com
 

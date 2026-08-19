@@ -1,5 +1,7 @@
 # dsh-message-editor
 
+> **English** · [简体中文](./README.zh.md)
+
 Recall (撤回), **edit-and-resend** (编辑重发) and **regenerate** (重新生成) for
 [DeepSeek Harness](https://github.com/deepseek-ai/deepseek-harness) conversation
 messages — works on the **Web GUI** and the **Desktop app** (both share the same
@@ -19,9 +21,11 @@ rewriting or deleting the durable transcript.
 | **✎ 编辑重发** (edit & re-send) | row under any user message | The old message and its reply are rewound, the edited text is sent, and the agent answers the new version. |
 | **↻ 重新生成** (regenerate) | hover any assistant reply | The reply (and everything after it) is rewound, then the original prompt is re-sent so the agent answers again. |
 
-The durable transcript is never destroyed: the original messages stay visible
-above the notice row as an audit trail (exactly how compaction checkpoints
-behave), while the agent's future context only sees the rewound history.
+Every recalled/edited message is **marked in place** with a `已撤回` / `已编辑`
+badge right under the old bubble, so it is always obvious that the old content
+was undone. The durable transcript is never destroyed: the original messages
+stay visible as an audit trail (exactly how compaction checkpoints behave),
+while the agent's future context only sees the rewound history.
 
 ## How it works
 
@@ -110,7 +114,8 @@ lib/dynamic-client.js  # dynamic Client half (self-contained)
 
 Built by the [OfferKuai](https://www.offerkuai.com) team — an AI job application
 assistant on a mission that "users need results, not repeated conversations".
-This plugin is released as open source for the DeepSeek Harness community.
+Founder: Zhaofeng (Yaming). This plugin is released as open source for the
+DeepSeek Harness community.
 
 ## License
 
