@@ -8,6 +8,9 @@
 #
 # Install into any profile with:
 #   dsh plugin --profile <name> add dsh-message-editor
+# (manual: add "dsh-message-editor" to the profile's dependencies and
+#  dsh.profile.bundles, then run `pnpm install` in the profile directory)
+# Restart DSH Desktop / the dsh process after installing or removing.
 
 - insert:
     - id: dsh-message-editor

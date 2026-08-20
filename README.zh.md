@@ -51,10 +51,17 @@ DeepSeek Harness 的对话是「只追加（append-only）」的事件日志，�
 > 需要带 `dsh` CLI 的 DeepSeek Harness。以 profile bundle 方式安装，并自动重建 Web 客户端：
 
 ```sh
+# DSH Desktop（desktop profile）
+dsh plugin --profile desktop add dsh-message-editor
+
+# 独立 Web 部署（`dsh web` / web profile）
 dsh plugin --profile web add dsh-message-editor
 ```
 
-完成 —— 悬停任意助手回复或用户消息，即可使用 ↩ / ✎ / ↻。
+> ⚠️ **安装后需要重启。** 运行中的应用仍在内存中保留之前加载的 bundle，请**退出并
+> 重新打开 DSH Desktop**（独立 Web 部署则重启 `dsh` 进程）后插件才会生效。
+
+重启后，悬停任意助手回复或用户消息，即可使用 ↩ / ✎ / ↻。
 
 ---
 
@@ -68,9 +75,53 @@ dsh plugin --profile web add dsh-message-editor
 dsh plugin --profile <name> add dsh-message-editor
 ```
 
-同时可在 [dsh-market](https://github.com/dsh-market/dsh-market) 里一键安装。
+> ⚠️ **安装后需要重启。** 安装会写入新文件并重新生成 profile 组合，但运行中的应用
+> **不会**热加载 bundle —— 请**退出并重新打开 DSH Desktop**（独立 Web 部署则重启
+> `dsh` 进程）来加载插件。卸载：`dsh plugin --profile <name> remove
+> dsh-message-editor`（卸载后同样需要重启）。
 
-### 2. npm 包 + 组合文件（经典方式）
+同时可在 [dsh-market](https://github.com/dsh-market/dsh-market) 里一键安装
+（安装后同样需要重启）。
+
+### 2. 手动安装（不依赖 `dsh` CLI）
+
+用纯文件编辑 + `pnpm` 装进同一个 profile —— 也就是 `dsh plugin add` 帮你做的那些步骤：
+
+1. 打开 profile 清单（默认位置：DSH Desktop 为 `~/.dsh/profiles/desktop`，
+   独立 Web 为 `~/.dsh/profiles/web`），同时加入依赖**和** bundle 层条目：
+
+   ```json
+   {
+     "dependencies": {
+       "dsh-message-editor": "^0.2.0"
+     },
+     "dsh": {
+       "profile": {
+         "bundles": [
+           "@deepseek-ai/dsh-base",
+           "@deepseek-ai/dsh-web-app",
+           "dsh-message-editor"
+         ]
+       }
+     }
+   }
+   ```
+
+   （保留 profile 原有条目，只需新增 `dsh-message-editor` 这两处。）
+
+2. 在 profile 目录里安装：
+
+   ```sh
+   cd ~/.dsh/profiles/<name> && pnpm install
+   ```
+
+3. 重启 DSH Desktop / `dsh` 进程（见上文）。
+
+本地开发时，可以把依赖指向本地检出目录而不是注册表：
+`"dsh-message-editor": "file:/路径/to/dsh-message-editor"` —— 或者交给 `dsh`：
+`dsh plugin --profile <name> add /路径/to/dsh-message-editor`。
+
+### 3. npm 包 + 组合文件（经典方式）
 
 ```sh
 npm i dsh-message-editor
@@ -85,7 +136,7 @@ npm i dsh-message-editor
 Client 半区会依据包内 `dsh.client` 元数据被自动打包进 Web 客户端（组合变化时会自动
 重建客户端模块）；Host 半区为浏览器 UI 注册同源 HTTP 路由 `/api/plugins/message-editor/*`。
 
-### 3. 动态插件（当前会话，免安装、免重建）
+### 4. 动态插件（当前会话，免安装、免重建）
 
 包内提供了两个自包含的动态入口：
 
