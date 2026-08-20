@@ -1,41 +1,127 @@
-# dsh-message-editor
+<div align="center">
 
-> **English** · [简体中文](./README.zh.md)
+# ↩️ dsh-message-editor
 
-Recall (撤回), **edit-and-resend** (编辑重发) and **regenerate** (重新生成) for
-[DeepSeek Harness](https://github.com/deepseek-ai/deepseek-harness) conversation
-messages — works on the **Web GUI** and the **Desktop app** (both share the same
-Web frontend).
+**Recall · Edit-and-resend · Regenerate** for
+[DeepSeek Harness](https://github.com/deepseek-ai/deepseek-harness) conversations —
+works on the **Web GUI** and the **Desktop app** (both share the same Web frontend).
 
-DeepSeek Harness stores every conversation as an append-only event log, so there
-is no built-in "undo". This plugin rewinds the **model-visible conversation
-surface** (the same append-only `replace` primitive the built-in compaction
-uses) and appends an invisible marker, then re-triggers the agent — without
-rewriting or deleting the durable transcript.
+[![npm version](https://img.shields.io/npm/v/dsh-message-editor)](https://www.npmjs.com/package/dsh-message-editor)
+[![License: MIT](https://img.shields.io/npm/l/dsh-message-editor)](https://github.com/azmavethy/dsh-message-editor/blob/main/LICENSE)
+[![DSH plugin](https://img.shields.io/badge/DSH-plugin-4A90D9)](https://github.com/topics/dsh-plugin)
+[![PRs Welcome](https://img.shields.io/badge/PRs-welcome-brightgreen)](https://github.com/azmavethy/dsh-message-editor/pulls)
 
-## Features
+**English** · [简体中文](./README.zh.md)
+
+</div>
+
+DeepSeek Harness stores every conversation as an **append-only event log**, so there is
+no built-in "undo". `dsh-message-editor` brings back the three moves every chat deserves —
+**撤回 (recall)**, **编辑重发 (edit-and-resend)** and **重新生成 (regenerate)** — without
+ever rewriting or deleting the durable transcript.
+
+---
+
+## ✨ Features
 
 | Action | Where | What happens |
 | --- | --- | --- |
-| **↩ 撤回** (recall) | hover any assistant reply, or the row under any user message | Removes the **whole exchange round** (the input AND the agent's output, including tool rows) from both the model context and the conversation view; the input text is echoed into the composer so you can re-ask or re-edit immediately. A small transient notice marks the rewind and disappears once you keep typing. |
-| **✎ 编辑重发** (edit & re-send) | row under any user message | The old message and its reply are rewound and hidden. By default the conversation **starts fresh** (all earlier messages are hidden too and excluded from context); the edited text is sent and the agent answers. A collapsed **"original input"** reference sits right under the new message — click to expand, configurable off. |
+| **↩ 撤回** (recall) | hover any assistant reply, or the row under any user message | Removes the **whole exchange round** (the input **and** the agent's output, tool rows included) from both the model context and the conversation view; the input text is echoed into the composer so you can re-ask or re-edit immediately. A small transient notice marks the rewind and disappears once you keep typing. |
+| **✎ 编辑重发** (edit & re-send) | row under any user message | The old message and its reply are rewound and hidden. By default the conversation **starts fresh** (earlier messages are hidden too and excluded from context); the edited text is sent and the agent answers. A collapsed **"original input"** reference sits right under the new message — click to expand, configurable off. |
 | **↻ 重新生成** (regenerate) | hover any assistant reply | The reply (and everything after it) is rewound and hidden, then the original prompt is re-sent so the agent answers again. |
 
-Because DeepSeek Harness stores conversations as an append-only log, the old
-events are never deleted — but they are **synchronized out of both the model
-context and the visible conversation**, so the view always reflects what the
-agent actually sees.
+**Why it's different**
 
-### Settings → General
+- 🎯 **Whole-round recall** — one click removes the input *and* its output (including tool rows), not just a single bubble.
+- 🖥️ **Web + Desktop** — the same plugin covers both surfaces of DeepSeek Harness.
+- 🔒 **Append-only, always** — the durable log is never rewritten or deleted; the plugin only appends valid, typed session events (the same `replace` primitive the built-in compaction uses).
+- 🧠 **View ⇄ context in sync** — the conversation view always reflects exactly what the agent sees.
+- ⚡ **Try in 30 seconds** — the dynamic form installs in your current session with no rebuild.
 
-- **编辑后显示原提问对照** (default on): a collapsed "original input" reference
-  under the re-sent message showing the **most recent** replaced text
-  (reference only — never sent to the model).
-- **编辑后从新对话开始** (default on): after editing, hide earlier messages too
-  so the conversation looks like a fresh start (the whole surface is rewound
-  before re-sending).
+---
 
-## How it works
+## 🚀 Quick start
+
+> Requires DeepSeek Harness with the `dsh` CLI. Installs the plugin as a profile
+> bundle and automatically rebuilds the Web client:
+
+```sh
+dsh plugin --profile web add dsh-message-editor
+```
+
+That's it — hover any assistant reply, or any user message, and use ↩ / ✎ / ↻.
+
+---
+
+## 📦 Installation
+
+### 1. Profile bundle (recommended)
+
+The package declares a `dsh.bundle` manifest, so it installs through the official
+plugin path into any profile:
+
+```sh
+dsh plugin --profile <name> add dsh-message-editor
+```
+
+It also shows up in [dsh-market](https://github.com/dsh-market/dsh-market) for
+one-click install from inside Settings.
+
+### 2. npm package + composition (classic)
+
+```sh
+npm i dsh-message-editor
+```
+
+Add the package to the harness composition (`cordis.yml` of the app/deployment you use):
+
+```yaml
+- name: 'dsh-message-editor'
+```
+
+The client half is picked up automatically from the package's `dsh.client` metadata and
+bundled into the Web client (a client-module rebuild happens automatically when the
+composition changes). The Host half registers the same-origin HTTP route
+`/api/plugins/message-editor/*` for the browser UI.
+
+### 3. Dynamic plugin (current session — no install, no rebuild)
+
+Use the **dynamic** entries shipped in the package. In the session where you want the
+feature:
+
+1. Open the plugin editor and define a new plugin from `lib/dynamic-host.js`
+   (Host half) and `lib/dynamic-client.js` (Client half).
+2. Approve and run the Client half.
+3. Done — hover any assistant reply, or any user message, and use ↩ / ✎ / ↻.
+
+The dynamic host registers the same operations behind the package-private
+`harness.handle` RPC (`messageEditor.recall` / `messageEditor.editAndResend` /
+`messageEditor.regenerate`).
+
+---
+
+## ⚙️ Settings → General
+
+| Setting | Default | Description |
+| --- | --- | --- |
+| **编辑后显示原提问对照** | on | A collapsed "original input" reference under the re-sent message showing the **most recent** replaced text (reference only — never sent to the model). |
+| **编辑后从新对话开始** | on | After editing, hide earlier messages too so the conversation looks like a fresh start (the whole surface is rewound before re-sending). |
+
+---
+
+## 🧠 How it works
+
+```
+ durable transcript (append-only)          model context & view
+ ┌────────────────────────────────┐        ┌──────────────────┐
+ │ ... target message             │        │  … target message │
+ │     ↓ shadow span              │        │       ↓ rewind    │
+ │ [target … last surface node]   │ ─────▶ │  (empty replace   │
+ │     ↳ one replacement          │        │   = context cut)  │
+ │       assistant/message (empty)│        └──────────────────┘
+ │     ↳ optional original-input  │        agent.followup(new prompt)
+ └────────────────────────────────┘        → next turn rebuilds request
+```
 
 1. **Host core** (`lib/host-core.js`, zero runtime imports) locates the target
    message in the session's live surface, computes the shadow span
@@ -56,45 +142,15 @@ agent actually sees.
      strip (撤回 / 重新生成),
    - two preference toggles under Settings → General.
 
-## Installation
+> Because DeepSeek Harness stores conversations as an append-only log, the old
+> events are never deleted — but they are **synchronized out of both the model
+> context and the visible conversation**, so the view always reflects what the
+> agent actually sees. Persistence, projections and the transcript remain
+> consistent because the plugin only appends valid, typed session events.
 
-### Published package (npm)
+---
 
-```sh
-npm i dsh-message-editor
-```
-
-Add the package to the harness composition (`cordis.yml` of the app/deployment
-you use) as a normal plugin row:
-
-```yaml
-- name: 'dsh-message-editor'
-```
-
-The client half is picked up automatically from the package's `dsh.client`
-metadata and bundled into the Web client (a client-module rebuild happens
-automatically when the composition changes). The Host half registers the
-same-origin HTTP route `/api/plugins/message-editor/*` for the browser UI.
-
-> Because a bundle rebuild is required for the client half, the quickest way to
-> try the feature in your current session is the dynamic plugin (below).
-
-### Dynamic plugin (current session — no install, no rebuild)
-
-Use the **dynamic** entries shipped in the package. In the session where you
-want the feature:
-
-1. Open the plugin editor and define a new plugin from
-   `lib/dynamic-host.js` (Host half) and `lib/dynamic-client.js` (Client half).
-2. Approve and run the Client half.
-3. Done — hover any assistant reply, or any user message, and use
-   ↩ / ✎ / ↻.
-
-The dynamic host registers the same operations behind the package-private
-`harness.handle` RPC (`messageEditor.recall` / `messageEditor.editAndResend` /
-`messageEditor.regenerate`).
-
-## Requirements & limitations
+## ⚠️ Requirements & limitations
 
 - Only **user messages** can be edited; recall works on user and assistant
   messages. Tool results are shadowed along with the recalled range but are not
@@ -105,13 +161,20 @@ The dynamic host registers the same operations behind the package-private
 - Recall/edit operate on the **active model surface**: a message that was
   already compacted away or previously recalled is rejected
   (`target-shadowed`).
-- The rewrite is **per-session and durable** like every other session event;
-  persistence, projections and the transcript remain consistent because the
-  plugin only appends valid, typed session events.
 - Regenerate re-sends only the **text** of the original prompt; prompts that
   carried images fall back to the text-only content.
 
-## Development
+---
+
+## 🗺️ Roadmap
+
+- [ ] Version timeline / reroll — browse and jump between past rewinds of a message
+- [ ] Forked-session edit — edit a past message and continue in a branched session
+- [ ] More locales beyond 简体中文 / English
+
+---
+
+## 🛠️ Development
 
 ```sh
 # structure
@@ -120,15 +183,35 @@ lib/index.js           # published Host: harness RPC + HTTP route
 lib/client.js          # published Client (React via import, fetch transport)
 lib/dynamic-host.js    # dynamic Host half (self-contained)
 lib/dynamic-client.js  # dynamic Client half (self-contained)
+cordis.patch.yml       # dsh.bundle profile patch layer
 ```
 
-## Team
+```sh
+npm pack --dry-run     # verify the published file list
+node --check lib/*.js  # syntax check
+```
+
+PRs and issues are welcome — see [CONTRIBUTING](./CONTRIBUTING.md) (coming soon)
+and the [issue tracker](https://github.com/azmavethy/dsh-message-editor/issues).
+
+---
+
+## 📚 Ecosystem
+
+Listed on the [dsh-plugin topic](https://github.com/topics/dsh-plugin) and
+installable from [dsh-market](https://github.com/dsh-market/dsh-market). For a
+curated overview of the DeepSeek Harness plugin ecosystem, see
+[awesome-dsh-plugin](https://github.com/awesome-dsh-plugin/awesome-dsh-plugin).
+
+---
+
+## 👥 Team
 
 Built by the [OfferKuai](https://www.offerkuai.com) team — an AI job application
 assistant on a mission that "users need results, not repeated conversations".
 Founder: Zhaofeng (Yaming). This plugin is released as open source for the
 DeepSeek Harness community.
 
-## License
+## 📄 License
 
 MIT

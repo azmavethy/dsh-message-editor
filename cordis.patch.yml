@@ -1,0 +1,14 @@
+# dsh-message-editor — profile bundle patch layer.
+#
+# Mounts the plugin as one normal Cordis row in the target profile (the
+# package's `main` → lib/index.js Host half runs as that row). The package's
+# `dsh.client` metadata is scanned by the modules node half, and its client
+# half (exports["./client"] → lib/client.js) is bundled into the Web client
+# automatically while this row is enabled.
+#
+# Install into any profile with:
+#   dsh plugin --profile <name> add dsh-message-editor
+
+- insert:
+    - id: dsh-message-editor
+      name: dsh-message-editor
