@@ -221,13 +221,16 @@ Client 半区会依据包内 `dsh.client` 元数据被自动打包进 Web 客户
 # 目录结构
 lib/host-core.js       # 传输无关的 Host 逻辑（无 import）
 lib/index.js           # 发布版 Host：harness RPC + HTTP 路由
-lib/client.js          # 发布版 Client（import React，fetch 传输）
+lib/client.js          # Client 源码（import React，fetch 传输）
+lib/client.bundle.js   # 构建产物 —— 自注册 loader entry
+                       # （`window.__ModuleLoader__.load`），由 client-modules 提供
 lib/dynamic-host.js    # 动态 Host 半区（自包含）
 lib/dynamic-client.js  # 动态 Client 半区（自包含）
 cordis.patch.yml       # dsh.bundle profile patch 层
 ```
 
 ```sh
+pnpm build             # 从 lib/client.js 重建 lib/client.bundle.js（发布前执行）
 npm pack --dry-run     # 校验发布文件清单
 node --check lib/*.js  # 语法检查
 ```

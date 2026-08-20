@@ -244,13 +244,16 @@ The dynamic host registers the same operations behind the package-private
 # structure
 lib/host-core.js       # transport-neutral host logic (no imports)
 lib/index.js           # published Host: harness RPC + HTTP route
-lib/client.js          # published Client (React via import, fetch transport)
+lib/client.js          # client SOURCE (React via import, fetch transport)
+lib/client.bundle.js   # BUILT client bundle — the self-registering loader entry
+                       # (`window.__ModuleLoader__.load`) served by client-modules
 lib/dynamic-host.js    # dynamic Host half (self-contained)
 lib/dynamic-client.js  # dynamic Client half (self-contained)
 cordis.patch.yml       # dsh.bundle profile patch layer
 ```
 
 ```sh
+pnpm build             # rebuild lib/client.bundle.js from lib/client.js (run before publishing)
 npm pack --dry-run     # verify the published file list
 node --check lib/*.js  # syntax check
 ```
