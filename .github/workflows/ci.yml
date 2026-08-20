@@ -1,0 +1,40 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+jobs:
+  verify:
+    name: Syntax · build-sync · tests
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Setup pnpm
+        uses: pnpm/action-setup@v4
+        # Version is read from the packageManager field in package.json.
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: pnpm
+
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
+
+      - name: Syntax check
+        run: pnpm check
+
+      - name: Build client bundle
+        run: pnpm build
+
+      # The committed lib/client.bundle.js (and the generated dynamic entries)
+      # must never drift from their sources. Any diff here fails the build.
+      - name: Generated artifacts in sync
+        run: git diff --exit-code -- lib/
+
+      - name: Unit tests
+        run: pnpm test

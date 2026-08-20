@@ -221,19 +221,33 @@ Client 半区会依据包内 `dsh.client` 元数据被自动打包进 Web 客户
 # 目录结构
 lib/host-core.js       # 传输无关的 Host 逻辑（无 import）
 lib/index.js           # 发布版 Host：harness RPC + HTTP 路由
-lib/client.js          # Client 源码（import React，fetch 传输）
+lib/client.js          # Client 源码（import React；传输层可插拔）
 lib/client.bundle.js   # 构建产物 —— 自注册 loader entry
                        # （`window.__ModuleLoader__.load`），由 client-modules 提供
-lib/dynamic-host.js    # 动态 Host 半区（自包含）
-lib/dynamic-client.js  # 动态 Client 半区（自包含）
-cordis.patch.yml       # dsh.bundle profile patch 层
+lib/dynamic-host.js    # 生成的动态 Host 半区（源自 lib/host-core.js）
+lib/dynamic-client.js  # 生成的动态 Client 半区（源自 lib/client.js）
+scripts/build-client.mjs      # 打包 lib/client.js → lib/client.bundle.js
+scripts/generate-dynamic.mjs  # 从权威源生成两个动态入口
+scripts/check-dynamic.mjs     # 语法检查动态入口（函数体形态）
+test/                 # vitest 套件：host-core 操作 + 生成产物冒烟测试
+.github/workflows/    # CI（语法 + 构建同步 + 测试）与 npm 发布（v* tag）
+cordis.patch.yml      # dsh.bundle profile patch 层
 ```
 
 ```sh
-pnpm build             # 从 lib/client.js 重建 lib/client.bundle.js（发布前执行）
-npm pack --dry-run     # 校验发布文件清单
-node --check lib/*.js  # 语法检查
+pnpm install          # 安装开发依赖（vitest、esbuild）
+pnpm check            # 语法检查源码与生成的动态入口
+pnpm build            # 重新生成 lib/dynamic-*.js 与 lib/client.bundle.js
+pnpm test             # 运行 host-core 单元测试
+npm pack --dry-run    # 校验发布文件清单
 ```
+
+> ⚠️ **生成文件。** `lib/dynamic-host.js`、`lib/dynamic-client.js` 与
+> `lib/client.bundle.js` 是由 `lib/host-core.js` 和 `lib/client.js` 生成的构建
+> 产物 —— **请勿手改**。CI 会在构建产物与源码不同步时失败
+> （`git diff --exit-code`），因此提交前记得执行 `pnpm build`。动态 Client 与
+> 发布版共用同一份 client 源码，仅通过 `__setMessageEditorWire` 切换传输层
+> （`host.call` vs HTTP 路由）。
 
 欢迎提交 PR 与 issue —— 见 [CONTRIBUTING](./CONTRIBUTING.md)（筹备中）与
 [问题追踪](https://github.com/azmavethy/dsh-message-editor/issues)。

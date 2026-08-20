@@ -1,0 +1,58 @@
+name: Publish
+
+# Publish to npm when a version tag (vX.Y.Z) is pushed.
+# Requires an npm token secret: repo → Settings → Secrets → NPM_TOKEN
+# (a granular access token with "Publish packages" permission on the package).
+
+on:
+  push:
+    tags: ['v*']
+
+jobs:
+  publish:
+    name: Build, verify and publish
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      id-token: write # required for npm provenance
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Setup pnpm
+        uses: pnpm/action-setup@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          registry-url: https://registry.npmjs.org
+          cache: pnpm
+
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
+
+      - name: Verify tag matches package version
+        run: |
+          VERSION=$(node -p "require('./package.json').version")
+          if [ "v${VERSION}" != "${{ github.ref_name }}" ]; then
+            echo "Tag ${{ github.ref_name }} does not match package.json version v${VERSION}" >&2
+            exit 1
+          fi
+
+      - name: Syntax check
+        run: pnpm check
+
+      - name: Build client bundle
+        run: pnpm build
+
+      - name: Generated artifacts in sync
+        run: git diff --exit-code -- lib/
+
+      - name: Unit tests
+        run: pnpm test
+
+      - name: Publish to npm
+        run: pnpm publish --provenance
+        env:
+          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}

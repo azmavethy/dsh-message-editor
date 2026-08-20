@@ -244,19 +244,34 @@ The dynamic host registers the same operations behind the package-private
 # structure
 lib/host-core.js       # transport-neutral host logic (no imports)
 lib/index.js           # published Host: harness RPC + HTTP route
-lib/client.js          # client SOURCE (React via import, fetch transport)
+lib/client.js          # client SOURCE (React via import; pluggable transport)
 lib/client.bundle.js   # BUILT client bundle — the self-registering loader entry
                        # (`window.__ModuleLoader__.load`) served by client-modules
-lib/dynamic-host.js    # dynamic Host half (self-contained)
-lib/dynamic-client.js  # dynamic Client half (self-contained)
-cordis.patch.yml       # dsh.bundle profile patch layer
+lib/dynamic-host.js    # GENERATED dynamic Host half (from lib/host-core.js)
+lib/dynamic-client.js  # GENERATED dynamic Client half (from lib/client.js)
+scripts/build-client.mjs      # bundle lib/client.js → lib/client.bundle.js
+scripts/generate-dynamic.mjs  # generate both dynamic entries from the canonical sources
+scripts/check-dynamic.mjs     # syntax-check the dynamic entries (function bodies)
+test/                 # vitest suite: host-core ops + generated-entry smoke tests
+.github/workflows/    # CI (syntax + build-sync + tests) and npm publish (v* tags)
+cordis.patch.yml      # dsh.bundle profile patch layer
 ```
 
 ```sh
-pnpm build             # rebuild lib/client.bundle.js from lib/client.js (run before publishing)
-npm pack --dry-run     # verify the published file list
-node --check lib/*.js  # syntax check
+pnpm install          # install dev dependencies (vitest, esbuild)
+pnpm check            # syntax-check sources AND the generated dynamic entries
+pnpm build            # regenerate lib/dynamic-*.js + lib/client.bundle.js
+pnpm test             # run the host-core unit tests
+npm pack --dry-run    # verify the published file list
 ```
+
+> ⚠️ **Generated files.** `lib/dynamic-host.js`, `lib/dynamic-client.js` and
+> `lib/client.bundle.js` are built artifacts generated from `lib/host-core.js`
+> and `lib/client.js` — never edit them by hand. CI fails when a committed
+> artifact is stale (`git diff --exit-code`), so run `pnpm build` before
+> committing. The dynamic client reuses the same client source as the published
+> one and only swaps the transport (`host.call` vs the HTTP route) via
+> `__setMessageEditorWire`.
 
 PRs and issues are welcome — see [CONTRIBUTING](./CONTRIBUTING.md) (coming soon)
 and the [issue tracker](https://github.com/azmavethy/dsh-message-editor/issues).

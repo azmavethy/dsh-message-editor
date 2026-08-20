@@ -2,11 +2,15 @@
   "name": "dsh-message-editor",
   "description": "Recall (撤回), edit-and-resend (编辑重发) and regenerate (重新生成) for DeepSeek Harness conversation messages — Web and Desktop",
   "version": "0.2.2",
+  "packageManager": "pnpm@11.7.0",
   "type": "module",
   "main": "lib/index.js",
   "types": "lib/types/index.d.ts",
   "scripts": {
-    "build": "node scripts/build-client.mjs"
+    "build": "node scripts/generate-dynamic.mjs && node scripts/build-client.mjs",
+    "check": "node --check lib/index.js lib/client.js lib/host-core.js && node scripts/check-dynamic.mjs",
+    "test": "vitest run",
+    "prepublishOnly": "pnpm check && pnpm build && pnpm test"
   },
   "exports": {
     ".": {
@@ -82,6 +86,7 @@
   },
   "homepage": "https://github.com/azmavethy/dsh-message-editor#readme",
   "devDependencies": {
-    "esbuild": "^0.28.2"
+    "esbuild": "^0.28.2",
+    "vitest": "^4.1.11"
   }
 }
