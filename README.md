@@ -17,8 +17,14 @@ works on the **Web GUI** and the **Desktop app** (both share the same Web fronte
 
 DeepSeek Harness stores every conversation as an **append-only event log**, so there is
 no built-in "undo". `dsh-message-editor` brings back the three moves every chat deserves —
-**撤回 (recall)**, **编辑重发 (edit-and-resend)** and **重新生成 (regenerate)** — without
-ever rewriting or deleting the durable transcript.
+**撤回 (recall)**, **编辑重发 (edit-and-resend)** and **重新生成 (regenerate)**.
+
+Recall / edit **remove the target messages from the conversation view and the model
+context** — that is exactly the effect you see. What stays untouched is the underlying
+**durable transcript**: it remains append-only, old events are never rewritten or deleted,
+and the plugin merely appends one valid replacement event (the same `replace` primitive
+the built-in compaction uses) to rewind the surface — so the log keeps a full audit trail
+of every rewind.
 
 ---
 
@@ -34,7 +40,7 @@ ever rewriting or deleting the durable transcript.
 
 - 🎯 **Whole-round recall** — one click removes the input *and* its output (including tool rows), not just a single bubble.
 - 🖥️ **Web + Desktop** — the same plugin covers both surfaces of DeepSeek Harness.
-- 🔒 **Append-only, always** — the durable log is never rewritten or deleted; the plugin only appends valid, typed session events (the same `replace` primitive the built-in compaction uses).
+- 🔒 **Removed from view & context, not from the log** — recalled/edited messages disappear from the conversation view and the model context, while the durable transcript is never rewritten or deleted; the plugin only appends valid, typed session events (the same `replace` primitive the built-in compaction uses), so the log keeps a full audit trail.
 - 🧠 **View ⇄ context in sync** — the conversation view always reflects exactly what the agent sees.
 - ⚡ **Try in 30 seconds** — the dynamic form installs in your current session with no rebuild.
 
@@ -142,11 +148,13 @@ The dynamic host registers the same operations behind the package-private
      strip (撤回 / 重新生成),
    - two preference toggles under Settings → General.
 
-> Because DeepSeek Harness stores conversations as an append-only log, the old
-> events are never deleted — but they are **synchronized out of both the model
-> context and the visible conversation**, so the view always reflects what the
-> agent actually sees. Persistence, projections and the transcript remain
-> consistent because the plugin only appends valid, typed session events.
+> Two different layers are at play: the **durable transcript** (append-only; old
+> events are never rewritten or deleted) and the **model-visible surface** (rewound
+> by an appended replacement event). So the old events stay in the log as an audit
+> trail — but they are **synchronized out of both the model context and the visible
+> conversation**, and the view always reflects what the agent actually sees.
+> Persistence, projections and the transcript remain consistent because the plugin
+> only appends valid, typed session events.
 
 ---
 
